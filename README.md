@@ -14,6 +14,15 @@ If bundler is not being used to manage dependencies, install the gem by executin
 
     $ gem install qodex-rails
 
+## Configuration
+    # config/initializers/qodex_rails.rb
+
+    QodexRails.configure do |config|
+        config.collection_name = 'Your_Collection_Name' # Name of the collection where logs will be stored
+        config.api_key = 'Your_API_Key'                 # API key for authentication
+    end
+
+
 ## Usage
 
 TODO: Write usage instructions here
