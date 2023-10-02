@@ -10,6 +10,15 @@ module QodexRails
       end
 
       def call(env)
+        # Exit early if collection_name or api_key are not configured
+        unless QodexRails.configuration.collection_name && QodexRails.configuration.api_key
+          Rails.logger.warn "QodexRails: collection_name or api_key not configured. Skipping middleware."
+          return @app.call(env)
+        end
+
+        # Print the initializer keys to the output
+        Rails.logger.info "QodexRails Initializer Keys: Collection Name: #{QodexRails.configuration.collection_name}, API Key: #{QodexRails.configuration.api_key}"
+
         start_time = Time.now
         
         # Capture the request details
@@ -59,7 +68,7 @@ module QodexRails
       end
 
       def send_to_api(logs)
-        uri = URI("#{ENV['API_URL']}/api/v1/collections/create_with_folder/#{ENV['API_KEY']}")
+        uri = URI("https://api.app.qodex.ai/api/v1/collections/create_with_folder/#{QodexRails.configuration.api_key}")
         request = Net::HTTP::Post.new(uri, 'Content-Type' => 'application/json')
         request.body = JSON.generate(logs)
         response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == 'https') do |http|
@@ -67,7 +76,7 @@ module QodexRails
         end
 
         # Optionally log the response from the external API
-        Rails.logger.info "API Response: #{response.body}" if response
+        Rails.logger.info "URI: #{uri}, API Response: #{response.body}" if response
       end
     end
   end
