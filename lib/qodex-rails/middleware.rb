@@ -39,7 +39,7 @@ module QodexRails
           api_key: QodexRails.configuration.api_key,
           apis: [{
             body: response_body,
-            body_type: response.content_type,
+            body_type: 'none-type',
             request_type: request.request_method,
             timestamp: Time.now.to_i,
             url: request.url,
@@ -59,12 +59,12 @@ module QodexRails
 
       def extract_body(response)
         body = ""
-        response.each { |part| body << part }
+        response.each { |part| body << part } if response.respond_to?(:each)
         body
       end
 
       def extract_headers(headers)
-        headers.map { |name, value| { name: name, value: value } }
+        headers.map { |name, value| { name: name, value: value } } if headers.respond_to?(:map)
       end
 
       def send_to_api(logs)
