@@ -17,7 +17,7 @@ module QodexRails
         end
 
         # Print the initializer keys to the output
-        Rails.logger.info "QodexRails Initializer Keys: Collection Name: #{QodexRails.configuration.collection_name}, API Key: #{QodexRails.configuration.api_key}"
+        # Rails.logger.info "QodexRails Initializer Keys: Collection Name: #{QodexRails.configuration.collection_name}, API Key: #{QodexRails.configuration.api_key}"
 
         start_time = Time.now
         
@@ -37,7 +37,8 @@ module QodexRails
         logs = {
           collection_name: QodexRails.configuration.collection_name,
           api_key: QodexRails.configuration.api_key,
-          apis: [{
+          api: {
+            time_spent: (end_time - start_time).to_i,
             body: response_body,
             body_type: 'none-type',
             request_type: request.request_method,
@@ -45,8 +46,8 @@ module QodexRails
             url: request.url,
             status: status,
             headers: extract_headers(headers),
-            params: request.filtered_parameters  # Using Rails' parameter filtering
-          }]
+            params: request.params  # Using Rails' parameter filtering
+          }
         }
 
         # Send the logs to the external API
@@ -68,7 +69,7 @@ module QodexRails
       end
 
       def send_to_api(logs)
-        uri = URI("https://api.app.qodex.ai/api/v1/collections/create_with_folder/#{QodexRails.configuration.api_key}")
+        uri = URI("https://api.app.qodex.ai/api/v1/collections/create_sample_data/#{QodexRails.configuration.api_key}")
         request = Net::HTTP::Post.new(uri, 'Content-Type' => 'application/json')
         request.body = JSON.generate(logs)
         response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == 'https') do |http|
@@ -76,7 +77,7 @@ module QodexRails
         end
 
         # Optionally log the response from the external API
-        Rails.logger.info "URI: #{uri}, API Response: #{response.body}" if response
+        # Rails.logger.info "URI: #{uri}, API Response: #{response.body}" if response
       end
     end
   end
