@@ -8,7 +8,11 @@ TODO: Delete this and the text above, and describe your gem
 
 Install the gem and add to the application's Gemfile by executing:
 
-    $ bundle add qodex-rails
+    $ # Gemfile
+
+    group :staging do
+        gem 'qodex-rails'
+    end
 
 If bundler is not being used to manage dependencies, install the gem by executing:
 
@@ -22,6 +26,16 @@ If bundler is not being used to manage dependencies, install the gem by executin
         config.api_key = 'Your_API_Key'                 # API key for authentication
     end
 
+    # config/initializers/qodex_rails.rb
+
+    if Rails.env.staging?
+      QodexRails.configure do |config|
+        # Your configuration settings for qodex-rails in the staging environment
+        project_name = Rails.application.class.module_parent_name rescue 'qodex'
+        config.collection_name = "#{project_name}-#{Rails.env}" # Name of the collection where logs will be stored
+        config.api_key = 'Your API Key'
+      end
+    end
 
 ## Usage
 

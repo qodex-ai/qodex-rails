@@ -39,13 +39,15 @@ module QodexRails
           api_key: QodexRails.configuration.api_key,
           api: {
             time_spent: (end_time - start_time).to_i,
-            body: response_body,
+            body: request_body,
+            response_body: response_body,
             body_type: 'none-type',
             request_type: request.request_method,
             timestamp: Time.now.to_i,
             url: request.url,
             status: status,
-            headers: extract_headers(headers),
+            headers: extract_request_headers(env),
+            response_headers: extract_headers(headers),
             params: request.params  # Using Rails' parameter filtering
           }
         }
@@ -58,6 +60,13 @@ module QodexRails
 
       private
 
+      def extract_request_headers(env)
+        env.select { |k, v| k.start_with?('HTTP_') }
+        .map { |pair| [pair[0].sub(/^HTTP_/, ''), pair[1]] }
+        .map { |pair| [pair[0].split('_').collect(&:capitalize).join('-'), pair[1]] }
+        .to_h
+      end
+
       def extract_body(response)
         body = ""
         response.each { |part| body << part } if response.respond_to?(:each)
@@ -65,7 +74,7 @@ module QodexRails
       end
 
       def extract_headers(headers)
-        headers.map { |name, value| { name: name, value: value } } if headers.respond_to?(:map)
+        headers.to_h if headers.respond_to?(:map)
       end
 
       def send_to_api(logs)
