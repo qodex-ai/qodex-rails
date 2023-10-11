@@ -5,6 +5,7 @@ module QodexRails
     def initialize
       @collection_name = nil
       @api_key = nil
+      @enabled_in_production = false
     end
   end
 end
