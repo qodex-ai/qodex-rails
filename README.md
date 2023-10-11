@@ -8,9 +8,7 @@ Install the gem and add to the application's Gemfile by executing:
 
     $ # Gemfile
 
-    group :staging do
-        gem 'qodex-rails'
-    end
+    gem 'qodex-rails'
 
 If bundler is not being used to manage dependencies, install the gem by executing:
 
@@ -19,15 +17,15 @@ If bundler is not being used to manage dependencies, install the gem by executin
 ## Configuration
     # config/initializers/qodex_rails.rb
 
-    if Rails.env.staging?
-      QodexRails.configure do |config|
+    
+    QodexRails.configure do |config|
         # Your configuration settings for qodex-rails in the staging environment
         project_name = Rails.application.class.module_parent_name rescue 'qodex'
         config.collection_name = "#{project_name}-#{Rails.env}" # Name of the collection where logs will be stored
+        config.enabled_in_production = false  # Set to true to enable in production
         config.api_key = 'Your API Key'
-      end
-    end
-
+    end  
+    
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/qodex-rails. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [code of conduct](https://github.com/[USERNAME]/qodex-rails/blob/main/CODE_OF_CONDUCT.md).

@@ -10,6 +10,12 @@ module QodexRails
       end
 
       def call(env)
+
+        is_staging = Rails.env.staging?
+        enabled_in_production = Rails.env.production? && QodexRails.configuration.enabled_in_production
+        
+        return @app.call(env) unless is_staging || enabled_in_production        
+
         # Exit early if collection_name or api_key are not configured
         unless QodexRails.configuration.collection_name && QodexRails.configuration.api_key
           Rails.logger.warn "QodexRails: collection_name or api_key not configured. Skipping middleware."
