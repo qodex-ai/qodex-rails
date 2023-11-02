@@ -2,6 +2,6 @@
 
 module Qodex
   module Rails
-    VERSION = "0.1.10"
+    VERSION = "0.1.12"
   end
 end

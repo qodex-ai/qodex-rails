@@ -22,7 +22,8 @@ If bundler is not being used to manage dependencies, install the gem by executin
         # Your configuration settings for qodex-rails in the staging environment
         project_name = Rails.application.class.module_parent_name rescue 'qodex'
         config.collection_name = "#{project_name}-#{Rails.env}" # Name of the collection where logs will be stored
-        config.enabled_in_production = false  # Set to true to enable in production
+        config.allowed_environments = ['staging', 'production']  # Default value is staging if not set. Add production to enable in production
+        config.frequency = 'high' #default value is medium. to control the speed of the logs processing
         config.api_key = 'Your API Key'
     end  
     

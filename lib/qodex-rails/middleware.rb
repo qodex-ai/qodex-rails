@@ -7,19 +7,28 @@ module QodexRails
       def initialize(app)
         @app = app
         @mutex = Mutex.new  # Mutex for thread-safe logging
+        @allowed_environments = QodexRails.configuration.allowed_environments || ['staging']
+        @frequency = QodexRails.configuration.frequency || 'low'
       end
 
       def call(env)
-
-        is_staging = Rails.env.staging?
-        enabled_in_production = Rails.env.production? && QodexRails.configuration.enabled_in_production
         
-        return @app.call(env) unless is_staging || enabled_in_production        
+        # Check if the current environment is allowed
+        return @app.call(env) unless @allowed_environments.include?(Rails.env)
 
         # Exit early if collection_name or api_key are not configured
         unless QodexRails.configuration.collection_name && QodexRails.configuration.api_key
           Rails.logger.warn "QodexRails: collection_name or api_key not configured. Skipping middleware."
           return @app.call(env)
+        end
+
+        # Decide whether to log based on frequency setting
+        random_number = rand(20) + 1
+        case @frequency
+        when 'low'
+          return @app.call(env) unless random_number == 1
+        when 'medium'
+          return @app.call(env) unless random_number <= 4
         end
 
         # Print the initializer keys to the output

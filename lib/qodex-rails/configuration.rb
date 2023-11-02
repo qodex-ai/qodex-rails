@@ -1,11 +1,12 @@
 module QodexRails
   class Configuration
-    attr_accessor :collection_name, :api_key
+    attr_accessor :collection_name, :api_key, :allowed_environments, :frequency
 
     def initialize
       @collection_name = nil
       @api_key = nil
-      @enabled_in_production = false
+      @allowed_environments = ['staging']
+      @frequency = 'medium'
     end
   end
 end
