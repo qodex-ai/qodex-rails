@@ -12,7 +12,7 @@ module QodexRails
       end
 
       def call(env)
-        
+
         # Check if the current environment is allowed
         return @app.call(env) unless @allowed_environments.include?(Rails.env)
 
@@ -35,19 +35,19 @@ module QodexRails
         # Rails.logger.info "QodexRails Initializer Keys: Collection Name: #{QodexRails.configuration.collection_name}, API Key: #{QodexRails.configuration.api_key}"
 
         start_time = Time.now
-        
+
         # Capture the request details
         request = Rack::Request.new(env)
         request_body = request.body.read
         request.body.rewind
-        
+
         status, headers, response = @app.call(env)
-        
+
         end_time = Time.now
 
         # Capture the response details
         response_body = extract_body(response)
-        
+
         # Construct the logs
         logs = {
           collection_name: QodexRails.configuration.collection_name,
@@ -93,7 +93,8 @@ module QodexRails
       end
 
       def send_to_api(logs)
-        uri = URI("https://api.app.qodex.ai/api/v1/collections/create_sample_data/#{QodexRails.configuration.api_key}")
+        api_host = QodexRails.configuration.api_host || 'https://api.app.qodex.ai'
+        uri = URI("#{api_host}/api/v1/collections/create_sample_data/#{QodexRails.configuration.api_key}")
         request = Net::HTTP::Post.new(uri, 'Content-Type' => 'application/json')
         request.body = JSON.generate(logs)
         response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == 'https') do |http|
