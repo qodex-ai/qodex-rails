@@ -1,4 +1,5 @@
 require "qodex-rails/version"
+require "qodex-rails/masking_util"
 require "qodex-rails/middleware"
 require "qodex-rails/configuration"  # Require the new configuration file
 
