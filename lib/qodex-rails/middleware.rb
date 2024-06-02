@@ -42,9 +42,6 @@ module QodexRails
 
         # Capture the request details
         request = Rack::Request.new(env)
-        request_body = request.body.read
-        request.body.rewind
-
         status, headers, response = @app.call(env)
         response_content_type = response.instance_eval('@response').headers['content-type']
         if response_content_type.present? && !(response_content_type.include?('application/json'))
@@ -72,7 +69,6 @@ module QodexRails
         response_headers = MaskingUtil.mask_data(response_headers, pii_masking)
         request_params = MaskingUtil.mask_data(request_params, pii_masking)
         response_body = MaskingUtil.mask_data(response_body, pii_masking)
-        request_body = MaskingUtil.mask_data(request_body, pii_masking)
         request_url = MaskingUtil.mask_query_params(request.url, pii_masking)
 
         # Construct the logs
@@ -83,7 +79,6 @@ module QodexRails
             controller_name: controller_name,
             action_name: action_name,
             time_spent: (end_time - start_time).to_i,
-            body: request_body,
             response_body: response_body,
             body_type: 'none-type',
             request_type: request.request_method,
