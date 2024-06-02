@@ -42,17 +42,31 @@ module QodexRails
         request.body.rewind
 
         status, headers, response = @app.call(env)
+        response_content_type = response.instance_eval('@response').headers['content-type']
+        if response_content_type.present? && !(response_content_type.include?('application/json'))
+          return [status, headers, response]
+        end
 
         end_time = Time.now
 
         # Capture the response details
         response_body = extract_body(response)
 
+        routes = Rails.application.routes
+        parsed_route_info = routes.recognize_path(request.url, {method: request.request_method}) rescue nil
+        return [status, headers, response] if parsed_route_info.blank?
+
+        controller_name = parsed_route_info[:controller]
+        action_name = parsed_route_info[:action]
+        additional_info = parsed_route_info.except(:controller, :action)
+
         # Construct the logs
         logs = {
           collection_name: QodexRails.configuration.collection_name,
           api_key: QodexRails.configuration.api_key,
           api: {
+            controller_name: controller_name,
+            action_name: action_name,
             time_spent: (end_time - start_time).to_i,
             body: request_body,
             response_body: response_body,
@@ -63,7 +77,7 @@ module QodexRails
             status: status,
             headers: extract_request_headers(env),
             response_headers: extract_headers(headers),
-            params: request.params  # Using Rails' parameter filtering
+            params: request.params.merge(additional_info)  # Using Rails' parameter filtering
           }
         }
 
