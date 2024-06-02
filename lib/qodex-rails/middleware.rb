@@ -11,6 +11,10 @@ module QodexRails
         @frequency = QodexRails.configuration.frequency || 'low'
       end
 
+      def pii_masking
+        @pii_masking ||= QodexRails.configuration.pii_masking
+      end
+
       def call(env)
 
         # Check if the current environment is allowed
@@ -60,6 +64,17 @@ module QodexRails
         action_name = parsed_route_info[:action]
         additional_info = parsed_route_info.except(:controller, :action)
 
+        request_headers = extract_request_headers(env)
+        response_headers = extract_headers(headers)
+        request_params = request.params.merge(additional_info)
+
+        request_headers = MaskingUtil.mask_data(request_headers, pii_masking)
+        response_headers = MaskingUtil.mask_data(response_headers, pii_masking)
+        request_params = MaskingUtil.mask_data(request_params, pii_masking)
+        response_body = MaskingUtil.mask_data(response_body, pii_masking)
+        request_body = MaskingUtil.mask_data(request_body, pii_masking)
+        request_url = MaskingUtil.mask_query_params(request.url, pii_masking)
+
         # Construct the logs
         logs = {
           collection_name: QodexRails.configuration.collection_name,
@@ -73,11 +88,11 @@ module QodexRails
             body_type: 'none-type',
             request_type: request.request_method,
             timestamp: Time.now.to_i,
-            url: request.url,
+            url: request_url,
             status: status,
-            headers: extract_request_headers(env),
-            response_headers: extract_headers(headers),
-            params: request.params.merge(additional_info)  # Using Rails' parameter filtering
+            headers: request_headers,
+            response_headers: response_headers,
+            params: request_params  # Using Rails' parameter filtering
           }
         }
 

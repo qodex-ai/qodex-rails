@@ -17,7 +17,7 @@ If bundler is not being used to manage dependencies, install the gem by executin
 ## Configuration
     # config/initializers/qodex_rails.rb
 
-    
+
     QodexRails.configure do |config|
         # Your configuration settings for qodex-rails in the staging environment
         project_name = Rails.application.class.module_parent_name rescue 'qodex'
@@ -25,8 +25,9 @@ If bundler is not being used to manage dependencies, install the gem by executin
         config.allowed_environments = ['staging', 'production']  # Default value is staging if not set. Add production to enable in production
         config.frequency = 'high' #default value is medium. to control the speed of the logs processing
         config.api_key = 'Your API Key'
-    end  
-    
+        config.pii_masking = ['api-key', 'access-token'] # add keys to skip sending actual value to qodex server
+    end
+
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/qodex-rails. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [code of conduct](https://github.com/[USERNAME]/qodex-rails/blob/main/CODE_OF_CONDUCT.md).
