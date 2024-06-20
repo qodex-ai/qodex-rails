@@ -92,7 +92,7 @@ module QodexRails
         }
 
         # Send the logs to the external API
-        send_to_api(logs)
+        send_to_api(logs) rescue nil
 
         [status, headers, response]
       end
