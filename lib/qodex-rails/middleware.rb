@@ -43,7 +43,8 @@ module QodexRails
         # Capture the request details
         request = Rack::Request.new(env)
         status, headers, response = @app.call(env)
-        response_content_type = response.instance_eval('@response').headers['content-type']
+        response_headers = response.instance_eval('@response')&.headers
+        response_content_type = response_headers['content-type'] if response_headers.present?
         if response_content_type.present? && !(response_content_type.include?('application/json'))
           return [status, headers, response]
         end
