@@ -67,7 +67,11 @@ module QodexRails
         request_params = request.params.merge(additional_info)
 
         raw_request_body = request.body.read
-        request_body = JSON.parse(raw_request_body) if raw_request_body.present?
+        if raw_request_body.present?
+          request_body = JSON.parse(raw_request_body) rescue nil
+          request_body ||= URI.decode_www_form(raw_request_body).to_h
+        end
+
         request_params = request_params.merge(request_body) if request_body.present?
 
         request_headers = MaskingUtil.mask_data(request_headers, pii_masking)
